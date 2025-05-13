@@ -1,8 +1,11 @@
 import { useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast';
 import { RootState } from './redux/store';
-import ThemeToggle from './components/ThemeToggle';
+import Header from './components/Header';
+import SignIn from './pages/SignIn';
+import SignUp from './pages/SignUp';
 
 export default function App() {
   const darkMode = useSelector((state: RootState) => state.theme.darkMode);
@@ -18,15 +21,13 @@ export default function App() {
   return (
     <BrowserRouter>
       <div className={`min-h-screen ${darkMode ? 'dark' : 'light'}`}>
-        <header className="fixed top-0 w-full bg-white dark:bg-gray-800 shadow-sm">
-          <nav className="container mx-auto px-4 py-3 flex justify-between items-center">
-            <h1 className="text-2xl font-bold">Swagatom</h1>
-            <ThemeToggle />
-          </nav>
-        </header>
+        <Toaster position="top-center" />
+        <Header />
         <main className="container mx-auto px-4 pt-20">
           <Routes>
-            <Route path="/" element={<h1>Welcome to Swagatom</h1>} />
+            <Route path="/" element={<h1 className="text-4xl font-bold text-center mt-10">Welcome to Swagatom</h1>} />
+            <Route path="/sign-in" element={<SignIn />} />
+            <Route path="/sign-up" element={<SignUp />} />
           </Routes>
         </main>
       </div>
