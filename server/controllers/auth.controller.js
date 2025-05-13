@@ -14,10 +14,11 @@ export const register = async (req, res) => {
     try {
         const exitsUser = await User.findOne({ email });
         const exitsUsername = await User.findOne({ username });
-        if (exitsUsername) {
+        if (exitsUsername && exitsUser) {
+            return res.json({ success: false, message: "Username and Email already exists" });
+        } else if (exitsUsername) {
             return res.json({ success: false, message: "Username already exists" });
-        }
-        if (exitsUser) {
+        } else if (exitsUser) {
             return res.json({ success: false, message: "Email already exists" });
         }
 
