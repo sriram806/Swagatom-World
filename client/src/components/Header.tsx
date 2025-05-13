@@ -3,13 +3,19 @@ import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../redux/store';
 import { signOut } from '../redux/auth/authSlice';
 import ThemeToggle from './ThemeToggle';
+import toast from 'react-hot-toast';
 
 export default function Header() {
   const dispatch = useDispatch();
   const { currentUser } = useSelector((state: RootState) => state.auth);
 
-  const handleSignOut = () => {
-    dispatch(signOut());
+  const handleSignOut = async () => {
+    try {
+      await dispatch(signOut());
+      toast.success('Signed out successfully');
+    } catch (error) {
+      // Error is handled in the thunk
+    }
   };
 
   return (

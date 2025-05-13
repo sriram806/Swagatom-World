@@ -24,11 +24,10 @@ export default function SignIn() {
     try {
       const result = await dispatch(signIn(formData));
       if (result.meta.requestStatus === 'fulfilled') {
-        toast.success('Signed in successfully!');
         navigate('/');
       }
     } catch (error) {
-      toast.error('Failed to sign in');
+      // Error is handled in the thunk
     }
   };
 
