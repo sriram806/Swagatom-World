@@ -97,7 +97,9 @@ export const login = async (req, res) => {
             maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
         });
 
-        return res.json({ success: true, message: "Login successful", user: { id: user._id, username: user.username, email: user.email } });
+        // Sanitize user (omit password) and log the returned user (for debugging)
+        const sanitizedUser = { ...user.toObject(), password: undefined };
+        return res.json({ success: true, message: "Login successful", user: sanitizedUser });
     } catch (error) {
         return res.json({ success: false, message: "Error in login" });
     }
@@ -147,7 +149,7 @@ export const sendVerifyOtp = async (req, res) => {
     <div style="max-width: 600px; margin: auto; background: #ffffff; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); overflow: hidden;">
       <div style="background-color: #4B0082; color: #fff; padding: 25px 30px;">
         <h1 style="margin: 0; font-size: 26px;">Welcome to <span style="color: #FFD700;">SWAGATOM</span>!</h1>
-        <p style="margin: 5px 0 0; font-size: 16px;">Let’s get your account verified.</p>
+        <p style="margin: 5px 0 0; font-size: 16px;">Let's get your account verified.</p>
       </div>
       <div style="padding: 30px;">
         <p style="font-size: 18px; margin-bottom: 16px;">Hello <strong>${user.username}</strong>,</p>

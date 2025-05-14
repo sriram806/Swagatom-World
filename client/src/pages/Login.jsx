@@ -1,13 +1,45 @@
 import { Button, Label, Spinner, TextInput } from 'flowbite-react';
-import { useState } from 'react';
-import Swal from 'sweetalert2';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import Swal from 'sweetalert2';
+import { useDispatch, useSelector } from 'react-redux';
+import { signInStart, signInSuccess, signInFailure } from '../redux/user/userSlice';
 import OAuth from '../components/OAuth';
+import { persistor } from '../redux/store';
 
-export default function SignUp() {
+export default function Login() {
   const [formData, setFormData] = useState({});
-  const [loading, setLoading] = useState(false);
+  const { loading, error } = useSelector((state) => state.user);
+  const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [buttonKey, setButtonKey] = useState(0);
+
+  // Clear persisted state on component mount
+  useEffect(() => {
+    const clearPersistedState = async () => {
+      await persistor.purge();
+      console.log('Persisted state cleared');
+    };
+    clearPersistedState();
+  }, []);
+
+  // Add useEffect to monitor loading state
+  useEffect(() => {
+    console.log('Current loading state:', loading);
+    console.log('Current error state:', error);
+  }, [loading, error]);
+
+  // Reset loading state on component mount
+  useEffect(() => {
+    if (loading) {
+      dispatch(signInFailure('Reset loading state'));
+    }
+  }, []);
+
+  // Update button key when loading state changes
+  useEffect(() => {
+    setButtonKey(prev => prev + 1);
+  }, [loading]);
 
   // SweetAlert2 Toast configuration
   const Toast = Swal.mixin({
@@ -21,60 +53,73 @@ export default function SignUp() {
       toast.onmouseleave = Swal.resumeTimer;
     },
   });
-  // Handle input changes
+
+  // Handle input change
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.id]: e.target.value.trim() });
   };
-  // Handle form data
+
+  // Handle form submit
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const { username, email, password } = formData;
+    const { email, password } = formData;
 
-    if (!username || !email || !password) {
+    if (!email || !password) {
       return Toast.fire({
         icon: 'warning',
         title: 'Please fill all fields',
       });
     }
 
+    console.log('Starting login process...');
+    console.log('Current loading state before signInStart:', loading);
+    dispatch(signInStart());
+    console.log('Current loading state after signInStart:', loading);
+
     try {
-      setLoading(true);
-      const res = await fetch('/api/auth/register', {
+      console.log('Making API request...');
+      const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
       });
 
       const data = await res.json();
-      setLoading(false);
+      console.log('API Response:', data);
 
       if (!res.ok || data.success === false) {
+        console.log('Login failed:', data.message);
+        dispatch(signInFailure(data.message || 'Login failed'));
+        console.log('Current loading state after signInFailure:', loading);
         return Toast.fire({
           icon: 'error',
-          title: data.message || 'Registration failed',
+          title: data.message || 'Login failed',
         });
       }
 
+      console.log("Login successful, payload (API response):", data);
+      dispatch(signInSuccess(data.user));
+      console.log("Current loading state after signInSuccess:", loading);
       Toast.fire({
         icon: 'success',
-        title: 'Account created successfully',
+        title: 'Account successfully logged in',
       });
-
-      navigate('/sign-in');
-
+      navigate('/');
     } catch (error) {
-      setLoading(false);
+      console.error('Login error:', error);
+      dispatch(signInFailure('Unable to connect to the server. Please make sure the backend server is running.'));
+      console.log('Current loading state after error:', loading);
       Toast.fire({
         icon: 'error',
-        title: 'Something went wrong',
+        title: 'Unable to connect to the server. Please make sure the backend server is running.',
       });
     }
   };
 
   return (
     <div className='min-h-screen mt-20'>
-      <div className='flex p-3 max-w-3xl mx-auto flex-col md:flex-row md:items-center gap-10'>
-        {/* Left Panel */}
+      <div className='flex p-3 max-w-3xl mx-auto flex-col md:flex-row md:items-center gap-5'>
+        {/* Left: Branding / Info */}
         <div className="flex flex-col items-center text-center bg-white dark:bg-gray-700 shadow-md p-8 rounded-lg w-full md:w-1/2">
           <Link to="/" className="flex flex-col items-center gap-4">
             <img
@@ -94,18 +139,9 @@ export default function SignUp() {
           </p>
         </div>
 
-        {/* Right Form */}
+        {/* Right: Form */}
         <div className='flex-1'>
           <form className='flex flex-col gap-4' onSubmit={handleSubmit}>
-            <div>
-              <Label value='Your username' />
-              <TextInput
-                type='text'
-                placeholder='Username'
-                id='username'
-                onChange={handleChange}
-              />
-            </div>
             <div>
               <Label value='Your email' />
               <TextInput
@@ -113,18 +149,21 @@ export default function SignUp() {
                 placeholder='name@company.com'
                 id='email'
                 onChange={handleChange}
+                required
               />
             </div>
             <div>
               <Label value='Your password' />
               <TextInput
                 type='password'
-                placeholder='Password'
+                placeholder='**********'
                 id='password'
                 onChange={handleChange}
+                required
               />
             </div>
             <Button
+              key={buttonKey}
               gradientDuoTone='purpleToBlue'
               type='submit'
               disabled={loading}
@@ -135,15 +174,15 @@ export default function SignUp() {
                   <span className='pl-3'>Loading...</span>
                 </>
               ) : (
-                'Sign Up'
+                'Sign In'
               )}
             </Button>
             <OAuth />
           </form>
           <div className='flex gap-2 text-sm mt-5'>
-            <span>Have an account?</span>
-            <Link to='/sign-in' className='text-blue-500'>
-              Sign In
+            <span>Don't have an account?</span>
+            <Link to='/registration' className='text-blue-500'>
+              Sign Up
             </Link>
           </div>
         </div>
