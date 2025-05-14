@@ -36,6 +36,7 @@ export default function DashProfile() {
   const [formData, setFormData] = useState({});
   const filePickerRef = useRef();
   const dispatch = useDispatch();
+  // handles Image uoload
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -43,12 +44,13 @@ export default function DashProfile() {
       setImageFileUrl(URL.createObjectURL(file));
     }
   };
+  // handles the image upload
   useEffect(() => {
     if (imageFile) {
       uploadImage();
     }
   }, [imageFile]);
-
+  // handles the image upload
   const uploadImage = async () => {
     // service firebase.storage {
     //   match /b/{bucket}/o {
@@ -92,11 +94,9 @@ export default function DashProfile() {
       }
     );
   };
-
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.id]: e.target.value });
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setUpdateUserError(null);
@@ -148,10 +148,9 @@ export default function DashProfile() {
       dispatch(deleteUserFailure(error.message));
     }
   };
-
   const handleSignout = async () => {
     try {
-      const res = await fetch('/api/user/signout', {
+      const res = await fetch('/api/auth/logout', {
         method: 'POST',
       });
       const data = await res.json();
@@ -241,7 +240,7 @@ export default function DashProfile() {
         >
           {loading ? 'Loading...' : 'Update'}
         </Button>
-        {currentUser.isAdmin && (
+        {currentUser.role === 'admin' && (
           <Link to={'/create-post'}>
             <Button
               type='button'
