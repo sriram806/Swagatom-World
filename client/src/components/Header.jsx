@@ -144,9 +144,6 @@ export default function Header() {
         <Navbar.Link as={Link} to="/about" active={location.pathname === '/about'}>
           About
         </Navbar.Link>
-        <Navbar.Link as={Link} to="/projects" active={location.pathname === '/projects'}>
-          Projects
-        </Navbar.Link>
       </Navbar.Collapse>
     </Navbar>
   );
