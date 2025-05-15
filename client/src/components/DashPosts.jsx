@@ -10,6 +10,7 @@ export default function DashPosts() {
   const [showMore, setShowMore] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [postIdToDelete, setPostIdToDelete] = useState('');
+
   useEffect(() => {
     const fetchPosts = async () => {
       try {
@@ -17,7 +18,7 @@ export default function DashPosts() {
         const data = await res.json();
         if (res.ok) {
           setUserPosts(data.posts);
-          if (data.posts.length < 9) {
+          if (data.posts.length < 5) {
             setShowMore(false);
           }
         }
@@ -85,9 +86,12 @@ export default function DashPosts() {
                 <span>Edit</span>
               </Table.HeadCell>
             </Table.Head>
-            {userPosts.map((post) => (
-              <Table.Body className='divide-y'>
-                <Table.Row className='bg-white dark:border-gray-700 dark:bg-gray-800'>
+            <Table.Body className='divide-y'>
+              {userPosts.map((post) => (
+                <Table.Row
+                  key={post._id}
+                  className='bg-white dark:border-gray-700 dark:bg-gray-800'
+                >
                   <Table.Cell>
                     {new Date(post.updatedAt).toLocaleDateString()}
                   </Table.Cell>
@@ -129,8 +133,8 @@ export default function DashPosts() {
                     </Link>
                   </Table.Cell>
                 </Table.Row>
-              </Table.Body>
-            ))}
+              ))}
+            </Table.Body>
           </Table>
           {showMore && (
             <button

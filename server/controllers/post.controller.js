@@ -23,7 +23,7 @@ export const createPost = async (req, res) => {
 export const getposts = async (req, res) => {
     try {
         const startIndex = parseInt(req.query.startIndex) || 0;
-        const limit = parseInt(req.query.limit) || 9;
+        const limit = parseInt(req.query.limit) || 5;
         const sortDirection = req.query.order === 'asc' ? 1 : -1;
         const posts = await Post.find({
             ...(req.query.userId && { userId: req.query.userId }),

@@ -3,7 +3,8 @@ import cors from 'cors';
 import 'dotenv/config';
 import cookieParser from 'cookie-parser';
 import bodyParser from 'body-parser';
-
+import http from 'http';
+import { Server } from 'socket.io';
 
 import connecttoDatabase from './database/mongodb.js';
 import { PORT } from './config/env.js';
@@ -27,7 +28,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cors({
     origin: (origin, callback) => {
         const allowedOrigins = [
-            'http://localhost:5173'
+            'http://localhost:5173',
         ];
         if (!origin || allowedOrigins.includes(origin)) {
             callback(null, true);
@@ -125,6 +126,27 @@ app.use('/api/user', userRoute);
 app.use('/api/post', postRouter);
 app.use('/api/comment', commentRoute);
 
-app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
+// Create HTTP server and attach Socket.IO
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: "http://localhost:5173",
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true
+  }
+});
+
+// Attach io instance to app locals so you can access it in controllers
+app.locals.io = io;
+
+io.on('connection', (socket) => {
+  console.log('User connected:', socket.id);
+
+  socket.on('disconnect', () => {
+    console.log('User disconnected:', socket.id);
+  });
+});
+
+server.listen(PORT, () => {
+  console.log(`Server running on http://localhost:${PORT}`);
 });

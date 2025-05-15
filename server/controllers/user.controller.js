@@ -58,7 +58,7 @@ export const deleteUser = async (req, res) => {
 };
 
 export const getUsers = async (req, res) => {
-    if (!req.user.isAdmin) {
+    if (!req.user.role === 'admin') {
         return res.json({ success: false, message: 'You are not allowed to see all users' });
     }
     try {
