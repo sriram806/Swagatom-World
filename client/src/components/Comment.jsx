@@ -6,7 +6,7 @@ import { Button, Textarea } from 'flowbite-react';
 import io from 'socket.io-client';
 
 // Connect socket outside the component
-const socket = io('http://localhost:1111'); // Replace with your backend URL
+const socket = io('https://swagatom-backend.onrender.com'); // Replace with your backend URL
 
 export default function Comment({ comment, onLike, onEdit, onDelete }) {
   const [user, setUser] = useState({});
