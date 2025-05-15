@@ -13,7 +13,7 @@ export default function Home({ videoId = "dQw4w9WgXcQ" }) {
   useEffect(() => {
     const fetchPosts = async () => {
       try {
-        const res = await fetch('/api/post/getPosts');
+        const res = await fetch('/api/post/getposts');
         const data = await res.json();
         setPosts(data.posts);
       } catch (error) {
